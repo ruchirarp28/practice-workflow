@@ -33,7 +33,7 @@ jobs:
           git fetch origin $SOURCE_BRANCH
 
           # Try merge without committing (no fast-forward)
-          git merge -s ours --no-ff $SOURCE_BRANCH -m "Record ancestry: no-op merge after squash"
+          git merge -s ours --no-ff origin/$SOURCE_BRANCH -m "Record ancestry: no-op merge after squash"
 
       - name: Push updated branch
         run: |
