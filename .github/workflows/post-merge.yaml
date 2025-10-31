@@ -1,0 +1,39 @@
+name: No-op Merge on PR Merge to Dev or Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - dev
+      - 'release/*'
+
+jobs:
+  post-merge-job:
+    # Only run if PR was merged
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # allow push using GITHUB_TOKEN
+
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0  # full history for merging
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Perform no-op merge
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          echo "Merging $SOURCE_BRANCH → $TARGET_BRANCH"
+
+          git fetch origin $SOURCE_BRANCH
+
+          # Try merge without committing (no fast-forward)
+          git merge --no-commit --no-ff origin/$SOURCE_BRANCH || true
+      - name: Push updated branch
+        run: |
+          git push origin HEAD:${{ github.event.pull_request.base.ref }}
