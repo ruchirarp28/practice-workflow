@@ -23,11 +23,15 @@ jobs:
           fetch-depth: 0  # full history for merging
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Perform no-op merge
         env:
           TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Merging $SOURCE_BRANCH → $TARGET_BRANCH"
 
