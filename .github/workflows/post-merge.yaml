@@ -51,4 +51,3 @@ jobs:
           git push origin $NOOP_BRANCH
 
           echo "Branch $NOOP_BRANCH created and pushed. Admin can manually create a PR."
-
