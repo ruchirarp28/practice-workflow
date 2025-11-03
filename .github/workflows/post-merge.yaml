@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write  # Required for creating PRs
+      pull-requests: write  # Required for create-pull-request action
 
     steps:
       - name: Checkout target branch
@@ -34,16 +34,13 @@ jobs:
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           echo "Merging $SOURCE_BRANCH → $TARGET_BRANCH"
-
           git fetch origin $SOURCE_BRANCH
-
-          # No-op merge using ours strategy
           git merge -s ours --no-ff origin/$SOURCE_BRANCH -m "Record ancestry: no-op merge after squash"
 
-      - name: Create PR for no-op merge
+      - name: Create PR for no-op merge using PAT
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_PUSH_TOKEN }}
           branch: no-op-merge/${{ github.event.pull_request.number }}
           base: ${{ github.event.pull_request.base.ref }}
           title: "No-op merge after PR #${{ github.event.pull_request.number }}"
