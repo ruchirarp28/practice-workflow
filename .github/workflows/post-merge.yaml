@@ -34,27 +34,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create and push no-op merge branch
+      - name: Create and push no-op branch
         run: |
           NOOP_BRANCH="no-op-merge/${{ github.event.pull_request.number }}"
-          SOURCE_BRANCH="${{ github.event.pull_request.head.ref }}"
           TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
 
-          echo "Creating local branch $NOOP_BRANCH for no-op merge"
+          echo "Creating local branch $NOOP_BRANCH from $TARGET_BRANCH"
 
           # Checkout target branch
           git checkout $TARGET_BRANCH
 
-          # Create new branch for no-op merge
+          # Create new branch
           git checkout -b $NOOP_BRANCH
 
-          # Fetch source branch to ensure it exists locally
-          git fetch origin $SOURCE_BRANCH:$SOURCE_BRANCH
-
-          # Perform no-op merge using 'ours' strategy
-          git merge -s ours --no-ff $SOURCE_BRANCH -m "Record ancestry: no-op merge after squash"
-
-          # Push the new branch to remote
+          # Push new branch to remote
           git push origin $NOOP_BRANCH
 
-          echo "Local branch $NOOP_BRANCH created and pushed. Admin can manually create a PR."
+          echo "Branch $NOOP_BRANCH created and pushed. Admin can manually create a PR."
+
