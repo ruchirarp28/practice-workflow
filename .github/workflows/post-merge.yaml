@@ -37,12 +37,17 @@ jobs:
       - name: Create local no-op merge branch
         run: |
           NOOP_BRANCH="no-op-merge/${{ github.event.pull_request.number }}"
-          echo "Creating local branch $NOOP_BRANCH for no-op merge"
+          SOURCE_BRANCH="${{ github.event.pull_request.head.ref }}"
 
-          # Create a new branch from target branch
+          echo "Creating local branch $NOOP_BRANCH for no-op merge"
+          
+          # Create new branch from target branch
           git checkout -b $NOOP_BRANCH
 
+          # Make sure source branch exists locally
+          git fetch origin $SOURCE_BRANCH:$SOURCE_BRANCH
+
           # Perform no-op merge using 'ours' strategy
-          git merge -s ours --no-ff ${{ github.event.pull_request.head.ref }} -m "Record ancestry: no-op merge after squash"
+          git merge -s ours --no-ff $SOURCE_BRANCH -m "Record ancestry: no-op merge after squash"
 
           echo "Local branch $NOOP_BRANCH with no-op merge created. Admin can manually create a PR if needed."
