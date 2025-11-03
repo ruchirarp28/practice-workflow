@@ -32,7 +32,6 @@ jobs:
         env:
           TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Merging $SOURCE_BRANCH → $TARGET_BRANCH"
 
@@ -41,9 +40,15 @@ jobs:
           # Try merge without committing (no fast-forward)
           git merge -s ours --no-ff origin/$SOURCE_BRANCH -m "Record ancestry: no-op merge after squash"
 
-      - name: Push updated branch
-        env:
-          PAT: ${{ secrets.PAT_PUSH_TOKEN }}
-        run: |
-          echo "Pushing merge commit to ${{ github.event.pull_request.base.ref }}"
-          git push https://x-access-token:${PAT}@github.com/${{ github.repository }} HEAD:${{ github.event.pull_request.base.ref }}
+      - name: Create PR for no-op merge
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: no-op-merge/${{ github.event.pull_request.number }}
+          base: ${{ github.event.pull_request.base.ref }}
+          title: "No-op merge after PR #${{ github.event.pull_request.number }}"
+          body: |
+            This PR records a no-op merge after the squash/rebase of #${{ github.event.pull_request.number }}.
+            Source branch: `${{ github.event.pull_request.head.ref }}`
+            Target branch: `${{ github.event.pull_request.base.ref }}`
+          commit-message: "Record ancestry: no-op merge after squash"
