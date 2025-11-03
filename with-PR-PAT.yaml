@@ -1,0 +1,51 @@
+name: No-op Merge on PR Merge to Dev or Release
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches:
+      - dev
+      - 'release/*'
+
+jobs:
+  post-merge-job:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write  # Required for create-pull-request action
+
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Perform no-op merge
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          echo "Merging $SOURCE_BRANCH → $TARGET_BRANCH"
+          git fetch origin $SOURCE_BRANCH
+          git merge -s ours --no-ff origin/$SOURCE_BRANCH -m "Record ancestry: no-op merge after squash"
+
+      - name: Create PR for no-op merge using PAT
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.PAT_PUSH_TOKEN }}
+          branch: no-op-merge/${{ github.event.pull_request.number }}
+          base: ${{ github.event.pull_request.base.ref }}
+          title: "No-op merge after PR #${{ github.event.pull_request.number }}"
+          body: |
+            This PR records a no-op merge after the squash/rebase of #${{ github.event.pull_request.number }}.
+            Source branch: `${{ github.event.pull_request.head.ref }}`
+            Target branch: `${{ github.event.pull_request.base.ref }}`
+          commit-message: "Record ancestry: no-op merge after squash"
