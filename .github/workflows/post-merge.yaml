@@ -1,4 +1,4 @@
-name: No-op Merge on PR Merge to Dev or Release
+name: No-op Merge Branch Creation
 
 on:
   pull_request_target:
@@ -8,20 +8,13 @@ on:
       - 'release/*'
 
 jobs:
-  post-merge-job:
-    # Only run if PR was merged
+  create-noop-branch:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write  # allows checkout + push to non-protected branches
 
     steps:
-      - name: Skip if PR is from a no-op branch
-        if: startsWith(github.event.pull_request.head.ref, 'no-op-merge/')
-        run: |
-          echo "PR is from a no-op merge branch. Skipping workflow."
-          exit 0
-
       - name: Checkout target branch
         uses: actions/checkout@v4
         with:
@@ -34,20 +27,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create and push no-op branch
+      - name: Create no-op merge branch
         run: |
           NOOP_BRANCH="no-op-merge/${{ github.event.pull_request.number }}"
           TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
 
           echo "Creating local branch $NOOP_BRANCH from $TARGET_BRANCH"
-
-          # Checkout target branch
           git checkout $TARGET_BRANCH
-
-          # Create new branch
           git checkout -b $NOOP_BRANCH
 
-          # Push new branch to remote
-          git push origin $NOOP_BRANCH
+          echo "Branch $NOOP_BRANCH created. Admin can manually create a PR if needed."
 
-          echo "Branch $NOOP_BRANCH created and pushed. Admin can manually create a PR."
+      - name: Push no-op merge branch
+        run: |
+          NOOP_BRANCH="no-op-merge/${{ github.event.pull_request.number }}"
+
+          # Push the branch to remote (safe if branch is not protected)
+          git push origin $NOOP_BRANCH || echo "Cannot push to protected branch. Admin can create manually."
