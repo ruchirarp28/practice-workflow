@@ -4,7 +4,6 @@ on:
   pull_request_target:
     types: [closed]
     branches:
-      - dev
       - 'release/*'
 
 jobs:
@@ -22,25 +21,25 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+#       - name: Setup Git identity
+#         run: |
+#           git config user.name "github-actions[bot]"
+#           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create no-op merge branch
-        run: |
-          NOOP_BRANCH="no-op-merge/${{ github.event.pull_request.number }}"
-          TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
+#       - name: Create no-op merge branch
+#         run: |
+#           NOOP_BRANCH="no-op-merge/${{ github.event.pull_request.number }}"
+#           TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
 
-          echo "Creating local branch $NOOP_BRANCH from $TARGET_BRANCH"
-          git checkout $TARGET_BRANCH
-          git checkout -b $NOOP_BRANCH
+#           echo "Creating local branch $NOOP_BRANCH from $TARGET_BRANCH"
+#           git checkout $TARGET_BRANCH
+#           git checkout -b $NOOP_BRANCH
 
-          echo "Branch $NOOP_BRANCH created. Admin can manually create a PR if needed."
+#           echo "Branch $NOOP_BRANCH created. Admin can manually create a PR if needed."
 
-      - name: Push no-op merge branch
-        run: |
-          NOOP_BRANCH="no-op-merge/${{ github.event.pull_request.number }}"
+#       - name: Push no-op merge branch
+#         run: |
+#           NOOP_BRANCH="no-op-merge/${{ github.event.pull_request.number }}"
 
-          # Push the branch to remote (safe if branch is not protected)
-          git push origin $NOOP_BRANCH || echo "Cannot push to protected branch. Admin can create manually."
+#           # Push the branch to remote (safe if branch is not protected)
+#           git push origin $NOOP_BRANCH || echo "Cannot push to protected branch. Admin can create manually."
