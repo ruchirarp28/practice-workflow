@@ -1,6 +1,7 @@
 name: Get Latest Commit From Another Repo Branch
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       branch:
