@@ -34,4 +34,5 @@ jobs:
 
     steps:
       - name: Print commit
-        run: echo "Commit from previous job: ${{ needs.get-commit.outputs.short_sha }}"
+        run: |
+          echo "Commit from previous job: ${{ needs.get-commit.outputs.short_sha }}"
