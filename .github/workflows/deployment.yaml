@@ -1,19 +1,22 @@
-name: Get Latest Commit From Another Repo Branch
+name: Get Commit And Use Later
 
 on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "Branch name of target repo"
+        description: Branch name
         required: true
-        default: "main"
+        default: main
 
 jobs:
   get-commit:
     runs-on: ubuntu-latest
 
+    outputs:
+      short_sha: ${{ steps.getsha.outputs.short_sha }}
+
     steps:
-      - name: Checkout other repo
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/dependency-repo
