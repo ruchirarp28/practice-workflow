@@ -1,0 +1,28 @@
+name: Get Latest Commit From Another Repo Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch name in the target repository"
+        required: true
+        default: "main"
+
+jobs:
+  get-latest-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout target repository branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/other-repo-name
+          ref: ${{ github.event.inputs.branch }}
+          path: other-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print latest commit id
+        run: |
+          cd other-repo
+          echo "Latest commit on branch ${{ github.event.inputs.branch }}:"
+          git rev-parse HEAD
