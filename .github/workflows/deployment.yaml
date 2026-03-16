@@ -19,5 +19,7 @@ jobs:
           repository: ${{ github.repository_owner }}/dependency-repo
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Print commit id
-        run: git rev-parse HEAD
+      - name: Print short commit id
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "Latest commit short SHA: $SHORT_SHA"
